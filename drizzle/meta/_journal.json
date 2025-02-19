@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1739629749829,
-      "tag": "0000_flawless_peter_parker",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1739928013042,
-      "tag": "0001_concerned_yellowjacket",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1739928902380,
-      "tag": "0002_deep_kang",
+      "when": 1739935562328,
+      "tag": "0000_ordinary_cerise",
       "breakpoints": true
     }
   ]

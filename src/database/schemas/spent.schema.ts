@@ -13,8 +13,8 @@ export const spentsSchema = sqliteTable('spents', {
   month: integer("month").notNull(),
   payment_method_id: integer("payment_method_id").notNull(),
   category_id: integer("category_id").notNull(),
-  created_at: text('created_at').notNull().default(sql`(current_timestamp)`),
-  updated_at: text('updated_at').notNull().default(sql`(current_timestamp)`),
+  created_at: text('created_at').default(sql`(CURRENT_TIMESTAMP)`),
+  updated_at: text('updated_at').default(sql`(CURRENT_TIMESTAMP)`),
 })
 
 export const spentsRelations = relations(spentsSchema, ({ one }) => ({

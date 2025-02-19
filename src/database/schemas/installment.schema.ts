@@ -11,11 +11,9 @@ export const installmentsSchema = sqliteTable('installments', {
   month: integer("month").notNull(),
   spent_id: integer("spent_id").notNull(),
   created_at: text('created_at')
-      .notNull()
-      .default(sql`(current_timestamp)`),
+      .default(sql`(CURRENT_TIMESTAMP)`),
     updated_at: text('updated_at')
-      .notNull()
-      .default(sql`(current_timestamp)`),
+      .default(sql`(CURRENT_TIMESTAMP)`),
 })
 
 export const installmentsRelations = relations(installmentsSchema, ({ one }) => ({

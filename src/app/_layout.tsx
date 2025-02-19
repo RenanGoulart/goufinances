@@ -1,5 +1,5 @@
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
-import { ActivityIndicator, SafeAreaView, Text, View } from 'react-native';
+import { ActivityIndicator, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { Slot } from 'expo-router';
 import { useEffect } from 'react';
 import { drizzle } from "drizzle-orm/expo-sqlite";
@@ -21,7 +21,7 @@ const queryClient = new QueryClient()
 
 const databaseName = process.env.DB_NAME || 'goufinances.db';
 
-const expoDB = openDatabaseSync(databaseName);
+const expoDB = openDatabaseSync(databaseName, { enableChangeListener: true });
 const db = drizzle(expoDB);
 
 SplashScreen.preventAutoHideAsync();
@@ -29,16 +29,14 @@ SplashScreen.preventAutoHideAsync();
 export default function () {
   const { success, error } = useMigrations(db, migrations);
 
-  useDrizzleStudio(expoDB);
-
   useEffect(() => {
     SplashScreen.hideAsync();
   }, []);
 
   if (error) {
     return (
-      <View>
-        <Text>Migration error: {error.message}</Text>
+      <View style={styles.error}>
+        <Text style={styles.errorText}>Migration error: {error.message}</Text>
       </View>
     );
   }
@@ -60,3 +58,14 @@ export default function () {
     </QueryClientProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  error: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: 'white'
+  }
+})

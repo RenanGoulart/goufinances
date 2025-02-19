@@ -1,8 +1,8 @@
 CREATE TABLE `categories` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
-	`created_at` text DEFAULT (current_timestamp) NOT NULL,
-	`updated_at` text DEFAULT (current_timestamp) NOT NULL
+	`created_at` text DEFAULT (CURRENT_TIMESTAMP),
+	`updated_at` text DEFAULT (CURRENT_TIMESTAMP)
 );
 --> statement-breakpoint
 CREATE TABLE `installments` (
@@ -13,18 +13,15 @@ CREATE TABLE `installments` (
 	`year` integer NOT NULL,
 	`month` integer NOT NULL,
 	`spent_id` integer NOT NULL,
-	`created_at` text DEFAULT (current_timestamp) NOT NULL,
-	`updated_at` text DEFAULT (current_timestamp) NOT NULL
+	`created_at` text DEFAULT (CURRENT_TIMESTAMP),
+	`updated_at` text DEFAULT (CURRENT_TIMESTAMP)
 );
 --> statement-breakpoint
 CREATE TABLE `payment_methods` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
-	`value` real NOT NULL,
-	`expiration_day` integer,
-	`closing_day` integer,
-	`created_at` text DEFAULT (current_timestamp) NOT NULL,
-	`updated_at` text DEFAULT (current_timestamp) NOT NULL
+	`created_at` text DEFAULT (CURRENT_TIMESTAMP),
+	`updated_at` text DEFAULT (CURRENT_TIMESTAMP)
 );
 --> statement-breakpoint
 CREATE TABLE `spents` (
@@ -32,10 +29,11 @@ CREATE TABLE `spents` (
 	`description` text NOT NULL,
 	`total_value` real NOT NULL,
 	`total_installments` integer NOT NULL,
+	`date` integer NOT NULL,
 	`year` integer NOT NULL,
 	`month` integer NOT NULL,
 	`payment_method_id` integer NOT NULL,
 	`category_id` integer NOT NULL,
-	`created_at` text DEFAULT (current_timestamp) NOT NULL,
-	`updated_at` text DEFAULT (current_timestamp) NOT NULL
+	`created_at` text DEFAULT (CURRENT_TIMESTAMP),
+	`updated_at` text DEFAULT (CURRENT_TIMESTAMP)
 );
