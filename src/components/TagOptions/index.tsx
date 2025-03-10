@@ -1,25 +1,34 @@
 import { theme } from "@/src/global/theme";
-import { PropsWithChildren } from "react";
-import { Pressable, PressableProps, StyleSheet, Text, View } from "react-native";
+import { FieldValues, useController, UseControllerProps } from "react-hook-form";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type Option = {
   id: number;
   name: string;
 }
 
-type Props = {
+type Props<TFieldValues extends FieldValues> = {
   options: Option[];
-  selectedOption: number | null;
-  setSelectedOption: (option: number | null) => void;
-}
+} & UseControllerProps<TFieldValues>
 
-export default function TagOptions({ options, selectedOption, setSelectedOption }: Props) {
+export default function TagOptions<TFieldValues extends FieldValues>({
+  name,
+  control,
+  options
+}: Props<TFieldValues>) {
+  const {
+    field: { value, onChange },
+    fieldState: { error },
+  } = useController({
+    name,
+    control
+  })
 
   const handleSelect = (id: number) => {
-    if (selectedOption === id) {
-      return setSelectedOption(null)
+    if (value === id) {
+      return onChange(null)
     }
-    setSelectedOption(id)
+    onChange(id)
   }
 
   return (
@@ -27,11 +36,11 @@ export default function TagOptions({ options, selectedOption, setSelectedOption 
       {options.map(option => (
         <Pressable
           key={option.id}
-          style={[styles.optionContainer, { borderColor: option.id === selectedOption ? theme.colors.primary.main : 'white' }]}
+          style={[styles.optionContainer, { borderColor: option.id === value ? theme.colors.primary.main : 'white' }]}
           onPress={() => handleSelect(option.id)}
         >
           <Text
-            style={[styles.text, { color: option.id === selectedOption ? theme.colors.primary.main : 'white' }]}
+            style={[styles.text, { color: option.id === value ? theme.colors.primary.main : 'white' }]}
           >
             {option.name}
           </Text>
