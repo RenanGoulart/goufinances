@@ -13,7 +13,7 @@ export default function RootLayout() {
       }}
     >
       <Tabs.Screen
-        name='categories/index'
+        name='Categories/index'
         options={{
           title: 'Categorias',
           tabBarIcon: ({ focused }) => <MaterialIcons name="category" size={24} color={focused ? theme.colors.primary.main : "#fff"} />,
@@ -21,7 +21,7 @@ export default function RootLayout() {
         }}
       />
       <Tabs.Screen
-        name='home/index'
+        name='Home/index'
         options={{
           title: 'Home',
           tabBarIcon: ({ focused }) => <MaterialIcons name="home" size={24} color={focused ? theme.colors.primary.main : "#fff"} />,
@@ -29,7 +29,7 @@ export default function RootLayout() {
         }}
       />
       <Tabs.Screen
-        name='paymentMethods/index'
+        name='PaymentMethods/index'
         options={{
           title: 'Pagamentos',
           tabBarIcon: ({ focused }) => <MaterialIcons name="credit-card" size={24} color={focused ? theme.colors.primary.main : "#fff"} />,
