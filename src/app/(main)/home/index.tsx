@@ -1,100 +1,59 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import DateTimePicker from '@react-native-community/datetimepicker';
-import Button from "@/src/components/Button";
-import Input from "@/src/components/Input";
-import TagOptions from "@/src/components/TagOptions";
-import FakeInput from "@/src/components/FakeInput";
-import { format } from "date-fns";
-import { categoriesSchema } from "@/src/database/schemas/category.schema";
-import { paymentMethodsSchema } from "@/src/database/schemas/paymentMethod.schema";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { theme } from "@/src/global/theme";
-import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { useSQLiteContext } from "expo-sqlite";
-
+import { useSpent } from "@/src/services/spent";
+import { formatCurrency } from "@/src/urils/format";
+import Checkbox from "@/src/components/Checkbox";
+import FormModal from "@/src/components/FormModal";
+import Button from "@/src/components/Button";
 
 export default function Home() {
-  const [description, setDescription] = useState('');
-  const [total, setTotal] = useState('');
-  const [totalInstallments, setTotalInstallments] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<number | null>(null);
-  const [category, setCategory] = useState<number | null>(null);
-  const [date, setDate] = useState<Date>();
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [selected, setSelected] = useState<number[]>([]);
 
-  const [openDatePicker, setOpenDatePicker] = useState(false);
+  const { data, handleDelete } = useSpent();
 
-  const db = useSQLiteContext();
-  const drizzleDb = drizzle(db, { schema: { categoriesSchema } });
+  const handleSelect = (id: number) => {
+    if (selected.includes(id)) {
+      return setSelected(selected.filter(item => item !== id));
+    }
+    return setSelected(prev => [...prev, id]);
+  }
 
-  const { data: categories } = useLiveQuery(
-    drizzleDb.select().from(categoriesSchema)
-  );
-
-  const { data: paymentMethods } = useLiveQuery(
-    drizzleDb.select().from(paymentMethodsSchema)
-  );
-
+  const onPressDelete = async () => {
+    await handleDelete(selected);
+    setSelected([]);
+  }
   return (
     <View style={styles.container}>
       <View style={styles.row}>
         <Text style={styles.title}>Despesas</Text>
-        <Pressable style={styles.deleteWrapper} >
+        <Pressable style={styles.deleteWrapper} onPress={onPressDelete}>
           <Text style={styles.deleteText}>Excluir</Text>
         </Pressable>
       </View>
-      <Input
-        value={description}
-        setValue={setDescription}
-        placeholder="Descrição"
-        autoCapitalize="words"
-      />
-      <Input
-        value={total}
-        setValue={setTotal}
-        placeholder="Valor total"
-      />
-      <Input
-        value={totalInstallments}
-        setValue={setTotalInstallments}
-        placeholder="Total de parcelas"
-      />
-      <Text style={styles.label}>Selecione uma categoria</Text>
-      <TagOptions
-        options={categories}
-        selectedOption={category}
-        setSelectedOption={setCategory}
+
+      <Button onPress={() => setOpenModal(true)}>Adicionar</Button>
+
+      <FlatList
+        data={data}
+        keyExtractor={item => String(item.id)}
+        renderItem={({ item }) => (
+          <Pressable style={styles.option} onPress={() => handleSelect(item.id)}>
+            <Text style={styles.optionText}>{item.id}</Text>
+            <Text style={styles.optionText}>{item.description}</Text>
+            <Text style={[styles.optionText, { marginLeft: 'auto' }]}>{formatCurrency(item.total_value)}</Text>
+            <Checkbox
+              isChecked={selected.includes(item.id)}
+              onPress={() => handleSelect(item.id)}
+              style={{ marginLeft: 'auto' }}
+            />
+          </Pressable>
+        )}
+        contentContainerStyle={{ gap: 16 }}
       />
 
-      <Text style={styles.label}>Selecione um método de pagamento</Text>
-      <TagOptions
-        options={paymentMethods}
-        selectedOption={paymentMethod}
-        setSelectedOption={setPaymentMethod}
-      />
-
-      <FakeInput
-        placeholder="Selecione uma data"
-        value={date ? format(date, 'dd/MM/yyyy') : ''}
-        onPress={() => setOpenDatePicker(true)}
-      />
-
-      <Button>
-        Salvar
-      </Button>
-
-      {openDatePicker && (
-
-        <DateTimePicker
-          value={date || new Date()}
-          onChange={(event, selectedDate) => {
-            setOpenDatePicker(false);
-            if (selectedDate) {
-              console.log('dateeee', selectedDate)
-              setDate(selectedDate)
-            }
-          }}
-        />
-      )}
+      <FormModal type='spent' isVisible={openModal} closeModal={() => setOpenModal(false)} />
     </View>
   );
 }
