@@ -1,25 +1,27 @@
 import Button from "@/src/components/Button";
 import Checkbox from "@/src/components/Checkbox";
 import Input from "@/src/components/Input";
-import { categoriesSchema } from "@/src/database/schemas/category.schema";
-import { paymentMethodsSchema } from "@/src/database/schemas/paymentMethod.schema";
 import { theme } from "@/src/global/theme";
-import { eq } from "drizzle-orm";
-import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { useSQLiteContext } from "expo-sqlite";
+import { usePaymentMethod } from "@/src/services/paymentMethod";
+import { PaymentMethodForm, PaymentMethodFormSchema } from "@/src/validations/paymentMethod.validation";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function PaymentMethods() {
-  const db = useSQLiteContext();
-  const drizzleDb = drizzle(db, { schema: { paymentMethodsSchema } });
-
-  const { data } = useLiveQuery(
-    drizzleDb.select().from(paymentMethodsSchema)
-  );
-
-  const [name, setName] = useState('');
   const [selected, setSelected] = useState<number[]>([]);
+
+  const { data, handleCreate, handleDelete } = usePaymentMethod();
+
+  const { control, handleSubmit, reset } = useForm<PaymentMethodForm>({
+    resolver: zodResolver(PaymentMethodFormSchema),
+  });
+
+  const onSubmit = async (data: PaymentMethodForm) => {
+    await handleCreate(data.name);
+    reset();
+  }
 
   const handleSelect = (id: number) => {
     if (selected.includes(id)) {
@@ -28,39 +30,26 @@ export default function PaymentMethods() {
     return setSelected(prev => [...prev, id]);
   }
 
-  const handleDelete = async () => {
-    if (!selected.length) return;
-
-    for (const id of selected) {
-      await drizzleDb.delete(paymentMethodsSchema).where(eq(paymentMethodsSchema.id, id));
-    }
-
-    setSelected([])
-  }
-
-  const createCategory = async () => {
-    if (!name) return;
-
-    await drizzleDb.insert(paymentMethodsSchema).values({ name });
-
-    setName('');
+  const onPressDelete = async () => {
+    await handleDelete(selected);
+    setSelected([]);
   }
 
   return (
     <View style={styles.container}>
       <View style={styles.row}>
         <Text style={styles.title}>Métodos de pagamento</Text>
-        <Pressable style={styles.deleteWrapper} onPress={handleDelete}>
+        <Pressable style={styles.deleteWrapper} onPress={onPressDelete}>
           <Text style={styles.deleteText}>Excluir</Text>
         </Pressable>
       </View>
       <Input
-        value={name}
-        setValue={setName}
+        control={control}
+        name="name"
         placeholder="Nome do método de pagamento"
         autoCapitalize="words"
       />
-      <Button onPress={createCategory} >
+      <Button onPress={handleSubmit(onSubmit)} >
         Salvar
       </Button>
 
