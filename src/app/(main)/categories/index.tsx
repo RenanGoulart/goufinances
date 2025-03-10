@@ -1,24 +1,27 @@
 import Button from "@/src/components/Button";
 import Checkbox from "@/src/components/Checkbox";
 import Input from "@/src/components/Input";
-import { categoriesSchema } from "@/src/database/schemas/category.schema";
 import { theme } from "@/src/global/theme";
-import { eq } from "drizzle-orm";
-import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { useSQLiteContext } from "expo-sqlite";
+import { useCategory } from "@/src/services/category";
+import { CategoryForm, CategoryFormSchema } from "@/src/validations/categories.validation";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function Categories() {
-  const db = useSQLiteContext();
-  const drizzleDb = drizzle(db, { schema: { categoriesSchema } });
-
-  const { data } = useLiveQuery(
-    drizzleDb.select().from(categoriesSchema)
-  );
-
-  const [name, setName] = useState('');
   const [selected, setSelected] = useState<number[]>([]);
+
+  const { data, handleCreate, handleDelete } = useCategory();
+
+  const { control, handleSubmit, reset } = useForm<CategoryForm>({
+    resolver: zodResolver(CategoryFormSchema),
+  });
+
+  const onSubmit = async (data: CategoryForm) => {
+    await handleCreate(data.name);
+    reset();
+  }
 
   const handleSelect = (id: number) => {
     if (selected.includes(id)) {
@@ -27,39 +30,26 @@ export default function Categories() {
     return setSelected(prev => [...prev, id]);
   }
 
-  const handleDelete = async () => {
-    if (!selected.length) return;
-
-    for (const id of selected) {
-      await drizzleDb.delete(categoriesSchema).where(eq(categoriesSchema.id, id));
-    }
-
-    setSelected([])
-  }
-
-  const createCategory = async () => {
-    if (!name) return;
-
-    await drizzleDb.insert(categoriesSchema).values({ name });
-
-    setName('');
+  const onPressDelete = async () => {
+    await handleDelete(selected);
+    setSelected([]);
   }
 
   return (
     <View style={styles.container}>
       <View style={styles.row}>
         <Text style={styles.title}>Categorias</Text>
-        <Pressable style={styles.deleteWrapper} onPress={handleDelete}>
+        <Pressable style={styles.deleteWrapper} onPress={onPressDelete}>
           <Text style={styles.deleteText}>Excluir</Text>
         </Pressable>
       </View>
       <Input
-        value={name}
-        setValue={setName}
+        control={control}
+        name="name"
         placeholder="Nome da categoria"
         autoCapitalize="words"
       />
-      <Button onPress={createCategory} >
+      <Button onPress={handleSubmit(onSubmit)} >
         Salvar
       </Button>
 
