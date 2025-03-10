@@ -1,19 +1,51 @@
-import { StyleSheet, TextInput, TextInputProps } from "react-native";
+import { StyleSheet, Text, TextInput, TextInputProps, View } from "react-native";
+import { TextInputMask, TextInputMaskOptionProp, TextInputMaskTypeProp } from 'react-native-masked-text';
+import { FieldValues, useController, UseControllerProps } from "react-hook-form";
+import { theme } from "@/src/global/theme";
 
-type Props = TextInputProps & {
-  value: string;
-  setValue: (value: string) => void;
-};
+type Props<TFieldValues extends FieldValues> = {
+  maskType?: TextInputMaskTypeProp;
+  maskOptions?: TextInputMaskOptionProp;
+} & TextInputProps & UseControllerProps<TFieldValues>;
 
-export default function Input({ value, setValue, ...props }: Props) {
+export default function Input<TFieldValues extends FieldValues>({
+  name,
+  control,
+  maskType,
+  maskOptions,
+  ...props
+}: Props<TFieldValues>) {
+  const {
+    field: { value, onChange },
+    fieldState: { error },
+  } = useController({
+    name,
+    control,
+  })
+
   return (
-    <TextInput
-      value={value}
-      onChangeText={setValue}
-      placeholderTextColor={'#aaa'}
-      style={styles.input}
-      {...props}
-    />
+    <View>
+      {maskType ? (
+        <TextInputMask
+          type={maskType}
+          options={maskOptions}
+          value={value}
+          onChangeText={onChange}
+          placeholderTextColor={'#aaa'}
+          style={styles.input}
+          {...props}
+        />
+      ) : (
+        <TextInput
+          value={value}
+          onChangeText={onChange}
+          placeholderTextColor={'#aaa'}
+          style={styles.input}
+          {...props}
+        />
+      )}
+      <Text style={styles.errorText}>{error && error.message}</Text>
+    </View>
   )
 }
 
@@ -26,4 +58,9 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     color: '#fff',
   },
+  errorText: {
+    marginTop: 4,
+    fontSize: 10,
+    color: theme.colors.error.main,
+  }
 })
