@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { theme } from "@/src/global/theme";
 import { useSpent } from "@/src/services/spent";
-import { formatCurrency } from "@/src/urils/format";
+import { formatCurrency } from "@/src/utils/format";
 import Checkbox from "@/src/components/Checkbox";
 import FormModal from "@/src/components/FormModal";
 import Button from "@/src/components/Button";

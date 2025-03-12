@@ -3,7 +3,7 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { eq } from "drizzle-orm";
 import { spentsSchema } from "@/src/database/schemas/spent.schema";
 import { SpentForm } from "@/src/validations/spents.validation";
-import { normalizeCurrency } from "@/src/urils/format";
+import { normalizeCurrency } from "@/src/utils/format";
 
 export const useSpent = () => {
   const database = useDatabase(spentsSchema);
